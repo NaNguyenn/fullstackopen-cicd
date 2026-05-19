@@ -15,6 +15,16 @@ module.exports = [
   },
   js.configs.recommended,
   {
+    files: ['jest.setup.js'],
+    languageOptions: {
+      ecmaVersion: 2018,
+      sourceType: 'commonjs',
+      globals: {
+        ...globals.node
+      }
+    },
+  },
+  {
     files: ['app.js'],
     languageOptions: {
       ecmaVersion: 2018,
@@ -26,8 +36,7 @@ module.exports = [
     rules: {
       'indent': ['error', 2],
       'linebreak-style': ['error', 'unix'],
-      'quotes': ['error', 'single'],
-      'semi': ['error', 'never'],
+      'quotes': ['error', 'double'],
       'eqeqeq': 'error',
       'no-trailing-spaces': 'error',
       'object-curly-spacing': ['error', 'always'],
