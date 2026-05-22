@@ -2,6 +2,12 @@
 
 This repository is used for the CI/CD module of the Full Stack Open course
 
+## Chapter 4: Deployment
+
+[Repo](https://github.com/NaNguyenn/blog-list-app)
+
+[App](https://blog-list-app-yl4c.onrender.com)
+
 ## Commands
 
 Start by running `npm install` inside the project folder
