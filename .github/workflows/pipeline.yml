@@ -49,3 +49,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
+  discord_notification:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord success notification
+        uses: sarisia/actions-status-discord@v1
+        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }} && success()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          message: "Deployment Successful! A new version deployed to production"
+          title: "Deployment Details"
+          description: |
+            - Commit: ${{ github.sha }}
+            - Message: ${{ github.event.head_commit.message }}
+            - Author: ${{ github.event.head_commit.author.name }}
+          color: 22bb33
+      - name: Send Discord failure notification
+        uses: sarisia/actions-status-discord@v1
+        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }} && failure()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          message: "Build Failed! The pipeline encountered an error."
+          title: "Failure Details"
+          description: |
+            - Repository: ${{ github.repository }}
+            - Branch: ${{ github.ref }}
+            - Commit: ${{ github.sha }}
+            - Message: ${{ github.event.head_commit.message }}
+            - Author: ${{ github.event.head_commit.author.name }}
+            - Workflow: ${{ github.workflow }}
+            - Job: ${{ github.job }}
+          color: ff0000
