@@ -54,6 +54,8 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
+      - name: Log pipeline result
+        run: echo "Pipeline result: ${{ needs.simple_deployment_pipeline.result }}"
       - name: Send Discord success notification
         uses: sarisia/actions-status-discord@v1
         if: ${{ needs.simple_deployment_pipeline.result == 'success' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
