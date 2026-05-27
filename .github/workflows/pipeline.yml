@@ -9,7 +9,7 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  simple_deployment_pipeline:
+  build_and_test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -35,32 +35,34 @@ jobs:
           retention-days: 30
       - name: Build project
         run: npm run build
-      - name: Mock deployment
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
-        run: echo "Deployed successfully!"
-  tag_release:
-    needs: [simple_deployment_pipeline]
+
+  deploy:
+    needs: [build_and_test]
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+    steps:
+      - name: Mock deployment
+        run: echo "Deployed successfully!"
+
+  tag_release:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
     steps:
       - uses: actions/checkout@v6
       - name: Bump version and push tag
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
-  discord_notification:
-    needs: [simple_deployment_pipeline]
+
+  notify_success:
+    needs: [deploy]
     runs-on: ubuntu-latest
-    if: always()
+    if: ${{ needs.deploy.result == 'success' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
     steps:
-      - name: Log pipeline result
-        env:
-          PIPELINE_RESULT: ${{ needs.simple_deployment_pipeline.result }}
-        run: echo "$PIPELINE_RESULT"
       - name: Send Discord success notification
         uses: sarisia/actions-status-discord@v1
-        if: ${{ needs.simple_deployment_pipeline.result == 'success' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           content: "Deployment Successful! A new version deployed to production"
@@ -70,9 +72,14 @@ jobs:
             - Message: ${{ github.event.head_commit.message }}
             - Author: ${{ github.event.head_commit.author.name }}
           color: 22bb33
+
+  notify_failure:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    if: ${{ needs.deploy.result == 'failure' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+    steps:
       - name: Send Discord failure notification
         uses: sarisia/actions-status-discord@v1
-        if: ${{ needs.simple_deployment_pipeline.result == 'failure' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           content: "Build Failed! The pipeline encountered an error."
