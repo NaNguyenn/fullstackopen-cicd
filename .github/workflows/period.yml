@@ -1,0 +1,15 @@
+name: Periodic health check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 1 * *" # every first day of the month at midnight (minute hour day month weekday)
+
+jobs:
+  health_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Perform health check
+        uses: jtalk/url-health-check-action@v5
+        with:
+          url: https://blog-list-app-yl4c.onrender.com
