@@ -52,6 +52,7 @@ jobs:
   discord_notification:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - name: Send Discord success notification
         uses: sarisia/actions-status-discord@v1
