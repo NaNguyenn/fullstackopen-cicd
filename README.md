@@ -2,7 +2,11 @@
 
 This repository is used for the CI/CD module of the Full Stack Open course
 
-## Chapter 4: Deployment & Exercise 6.21: Your own pipeline
+## Chapter 4: Deployment
+
+[App](https://fullstackopen-cicd-ju7v.onrender.com)
+
+## Exercise 6.21: Your own pipeline
 
 [Repo](https://github.com/NaNguyenn/blog-list-app)
 
