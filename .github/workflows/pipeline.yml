@@ -55,10 +55,10 @@ jobs:
     steps:
       - name: Send Discord success notification
         uses: sarisia/actions-status-discord@v1
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }} && success()
+        if: ${{ needs.simple_deployment_pipeline.result == 'success' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          message: "Deployment Successful! A new version deployed to production"
+          content: "Deployment Successful! A new version deployed to production"
           title: "Deployment Details"
           description: |
             - Commit: ${{ github.sha }}
@@ -67,10 +67,10 @@ jobs:
           color: 22bb33
       - name: Send Discord failure notification
         uses: sarisia/actions-status-discord@v1
-        if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }} && failure()
+        if: ${{ needs.simple_deployment_pipeline.result == 'failure' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          message: "Build Failed! The pipeline encountered an error."
+          content: "Build Failed! The pipeline encountered an error."
           title: "Failure Details"
           description: |
             - Repository: ${{ github.repository }}
