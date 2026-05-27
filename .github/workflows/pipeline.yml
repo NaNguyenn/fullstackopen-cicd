@@ -41,8 +41,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
     steps:
-      - name: Mock deployment
-        run: echo "Deployed successfully!"
+      - name: Deploy to Render
+        run: curl ${{ secrets.RENDER_DEPLOY_HOOK }}
 
   tag_release:
     needs: [deploy]
